@@ -4,30 +4,29 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.dailymotion.android.player.sdk.PlayerWebView;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity {
 
     private PlayerWebView playerWebView;
-    private Button muteBtn, fullscreenBtn;
-    private Button q380, q480, q720, q1080;
-    private Button lengthBtn, currentBtn;
-    private TextView length, current;
-    private Date formattedCurrent;
+    private TextView length, current, currentQuality;
+    private String videoID = "x7s5qhy";
 
-    private boolean isMuted = false;
-
-    // 일시정지/재생, 뮤트 버튼 제대로 되도록 하기, seek, length 시간 조절하기
+    private Runnable qualityChecker = new qualityCheckerRunnable();
+    private Thread qualityCheckerThread = new Thread(qualityChecker);
 
     @SuppressLint({"ClickableViewAccessibility", "SetTextI18n"})
     @Override
@@ -36,46 +35,91 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         playerWebView = findViewById(R.id.dm_player_web_view);
-        playerWebView.load("x7s21hq");
-        playerWebView.setQuality("1080");
+        playerWebView.load(videoID);
+        qualityCheckerThread.start();
 
-        muteBtn = findViewById(R.id.mute);
-        fullscreenBtn = findViewById(R.id.fullscreen);
+        Button load = findViewById(R.id.load);
+        Button play = findViewById(R.id.play);
+        Button pause = findViewById(R.id.pause);
+        Button mute = findViewById(R.id.mute);
+        Button unmute = findViewById(R.id.unmute);
 
-        q380 = findViewById(R.id.q380);
-        q480 = findViewById(R.id.q480);
-        q720 = findViewById(R.id.q720);
-        q1080 = findViewById(R.id.q1080);
+        Button q380 = findViewById(R.id.q380);
+        Button q480 = findViewById(R.id.q480);
+        Button q720 = findViewById(R.id.q720);
+        Button q1080 = findViewById(R.id.q1080);
 
-        final DateFormat format = new SimpleDateFormat("HHmmss");
-
-        lengthBtn = findViewById(R.id.videoLength);
-        currentBtn = findViewById(R.id.currentTime);
+        Button lengthBtn = findViewById(R.id.videoLength);
+        Button currentBtn = findViewById(R.id.currentTime);
         length = findViewById(R.id.length);
-        length.setText("0:00");
         current = findViewById(R.id.current);
-        current.setText("0:00");
+        currentQuality = findViewById(R.id.currentQuality);
 
-        muteBtn.setOnTouchListener(new View.OnTouchListener() {
+        Spinner videoSelector = findViewById(R.id.videoselector);
+        ArrayAdapter<CharSequence> videoIdAdapter = ArrayAdapter.createFromResource(this, R.array.videoid, android.R.layout.simple_spinner_dropdown_item);
+        videoSelector.setAdapter(videoIdAdapter);
+        videoSelector.setSelection(0);
+        videoSelector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                if (isMuted) {
-                    isMuted = false;
-                    muteBtn.setText("Mute");
-                    playerWebView.unmute();
-                } else {
-                    isMuted = true;
-                    muteBtn.setText("Unmute");
-                    playerWebView.mute();
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                switch (position) {
+                    case 0 :
+                        videoID = "x7s5qhy";
+                        break;
+                    case 1 :
+                        videoID = "x7s71dt";
+                        break;
+                    case 2 :
+                        videoID = "x7s1of4";
+                        break;
+                    case 3 :
+                        videoID = "x7s21hq";
+                        break;
                 }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        load.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                playerWebView.load(videoID);
                 return false;
             }
         });
 
-        fullscreenBtn.setOnTouchListener(new View.OnTouchListener() {
+        play.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                playerWebView.setFullscreenButton(true);
+            public boolean onTouch(View v, MotionEvent event) {
+                playerWebView.play();
+                return false;
+            }
+        });
+
+        pause.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                playerWebView.pause();
+                return false;
+            }
+        });
+
+        mute.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                playerWebView.mute();
+                return false;
+            }
+        });
+
+        unmute.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                playerWebView.unmute();
                 return false;
             }
         });
@@ -113,11 +157,26 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 double lengthDouble = playerWebView.getDuration();
-                try {
-                    Date formattedLength = format.parse(String.valueOf(lengthDouble));
-                    length.setText((CharSequence) formattedLength);
-                } catch (ParseException e) {
-                    e.printStackTrace();
+
+                int hour, min, sec;
+                if (lengthDouble >= 3600) {
+                    hour = (int) lengthDouble / 3600;
+                    min = (int) (lengthDouble - (hour * 3600)) / 60;
+                    sec = (int) (lengthDouble - (hour * 3600)) % 60;
+                    length.setText(hour + ":" + min + ":" + sec);
+                }
+                else if (lengthDouble < 3600 && lengthDouble >= 60) {
+                    min = (int) lengthDouble / 60;
+                    sec = (int) lengthDouble - (min * 60);
+                    length.setText(min + ":" + sec);
+                }
+                else if (lengthDouble < 60) {
+                    sec = (int) lengthDouble;
+                    if (sec < 10) {
+                        length.setText("00:0" + sec);
+                    } else {
+                        length.setText("00:" + sec);
+                    }
                 }
                 return false;
             }
@@ -127,15 +186,60 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 double currentDouble = playerWebView.getPosition();
-                try {
-                    formattedCurrent = format.parse(String.valueOf(currentDouble));
-                } catch (ParseException e) {
-                    e.printStackTrace();
+                currentDouble = currentDouble / 1000;
+                int hour, min, sec;
+                if (currentDouble >= 3600) {
+                    hour = (int) currentDouble / 3600;
+                    min = (int) (currentDouble - (hour * 3600)) / 60;
+                    sec = (int) (currentDouble - (hour * 3600)) % 60;
+                    current.setText(hour + ":" + min + ":" + sec);
                 }
-                current.setText((CharSequence) formattedCurrent);
+                else if (currentDouble < 3600 && currentDouble >= 60) {
+                    min = (int) currentDouble / 60;
+                    sec = (int) currentDouble - (min * 60);
+                    current.setText(min + ":" + sec);
+                }
+                else if (currentDouble < 60) {
+                    sec = (int) currentDouble;
+                    if (sec < 10) {
+                        current.setText("00:0" + sec);
+                    } else {
+                        current.setText("00:" + sec);
+                    }
+                }
                 return false;
             }
         });
 
+        // playerWebView.isEnded();
+        // 비디오 끝나면 영상 minimize 하도록 하기
+
+    }
+
+    @SuppressLint("HandlerLeak")
+    Handler qualityHandler = new Handler() {
+        @SuppressLint("SetTextI18n")
+        @Override
+        public void handleMessage(Message msg) {
+            currentQuality.setText("Current quality : " + msg.obj.toString() + "p");
+        }
+    };
+
+    private class qualityCheckerRunnable extends Thread implements Runnable {
+        @Override
+        public void run() {
+            super.run();
+
+            TimerTask checker = new TimerTask() {
+                @Override
+                public void run() {
+                    String quality = playerWebView.getQuality();
+                    qualityHandler.sendMessage(Message.obtain(qualityHandler, 1, quality));
+                }
+            };
+
+            Timer timer = new Timer();
+            timer.schedule(checker, 0, 1000);
+        }
     }
 }

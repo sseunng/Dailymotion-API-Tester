@@ -21,9 +21,7 @@
             android:id="@+id/dm_player_web_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-
         </com.dailymotion.android.player.sdk.PlayerWebView>
-
     </RelativeLayout>
 
     <TextView
@@ -31,18 +29,18 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="Quality control"
+        android:text="@string/quality"
         android:textColor="#000000"
         android:textSize="16sp"
         app:layout_constraintStart_toStartOf="@+id/videoViewLayout"
-        app:layout_constraintTop_toBottomOf="@+id/mute" />
+        app:layout_constraintTop_toBottomOf="@+id/play" />
 
     <Button
         android:id="@+id/q380"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="380"
+        android:text="@string/q380"
         android:textSize="16sp"
         app:layout_constraintStart_toStartOf="@+id/qualityControl"
         app:layout_constraintTop_toBottomOf="@+id/qualityControl" />
@@ -51,52 +49,60 @@
         android:id="@+id/q480"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="480"
+        android:layout_marginStart="8dp"
+        android:text="@string/q480"
         android:textSize="16sp"
-        app:layout_constraintStart_toStartOf="@+id/fullscreen"
-        app:layout_constraintTop_toBottomOf="@+id/qualityControl" />
+        app:layout_constraintStart_toEndOf="@+id/q380"
+        app:layout_constraintTop_toTopOf="@+id/q380" />
 
     <Button
         android:id="@+id/q720"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:text="720"
+        android:text="@string/q720"
         android:textSize="16sp"
         app:layout_constraintStart_toEndOf="@+id/q480"
-        app:layout_constraintTop_toBottomOf="@+id/qualityControl" />
+        app:layout_constraintTop_toTopOf="@+id/q480" />
 
     <Button
         android:id="@+id/q1080"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:text="1080"
+        android:text="@string/q1080"
         android:textSize="16sp"
         app:layout_constraintStart_toEndOf="@+id/q720"
-        app:layout_constraintTop_toBottomOf="@+id/qualityControl" />
+        app:layout_constraintTop_toTopOf="@+id/q720" />
+
+    <TextView
+        android:id="@+id/currentQuality"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="2dp"
+        android:layout_marginTop="8dp"
+        android:textSize="14sp"
+        app:layout_constraintStart_toStartOf="@+id/q380"
+        app:layout_constraintTop_toBottomOf="@+id/q380"
+        tools:text="Current quality" />
 
     <TextView
         android:id="@+id/videoInfo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="Video info"
+        android:text="@string/info"
         android:textColor="#000000"
         android:textSize="16sp"
         app:layout_constraintStart_toStartOf="@+id/playerControl"
-        app:layout_constraintTop_toBottomOf="@+id/q380" />
+        app:layout_constraintTop_toBottomOf="@+id/currentQuality" />
 
     <Button
         android:id="@+id/videoLength"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Length"
-
+        android:text="@string/length"
         app:layout_constraintStart_toStartOf="@+id/videoInfo"
         app:layout_constraintTop_toBottomOf="@+id/videoInfo" />
 
@@ -105,6 +111,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
+        android:text="@string/timezero"
         android:textColor="#000000"
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="@+id/videoLength"
@@ -115,16 +122,16 @@
         android:id="@+id/currentTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Current"
+        android:text="@string/current"
         app:layout_constraintStart_toStartOf="@+id/q720"
-        app:layout_constraintTop_toBottomOf="@+id/videoInfo" />
+        app:layout_constraintTop_toTopOf="@+id/videoLength" />
 
     <TextView
         android:id="@+id/current"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
+        android:text="@string/timezero"
         android:textColor="#000000"
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="@+id/currentTime"
@@ -136,30 +143,66 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="Player control"
+        android:text="@string/player"
         android:textColor="#000000"
         android:textSize="16sp"
         app:layout_constraintStart_toStartOf="@+id/videoViewLayout"
         app:layout_constraintTop_toBottomOf="@+id/videoViewLayout" />
 
+    <Spinner
+        android:id="@+id/videoselector"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:spinnerMode="dropdown"
+        app:layout_constraintBottom_toBottomOf="@+id/load"
+        app:layout_constraintEnd_toEndOf="@+id/unmute"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/pause"
+        app:layout_constraintTop_toTopOf="@+id/load" />
+
     <Button
-        android:id="@+id/mute"
+        android:id="@+id/load"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Mute"
+        android:text="@string/load"
         app:layout_constraintStart_toStartOf="@+id/playerControl"
         app:layout_constraintTop_toBottomOf="@+id/playerControl" />
 
     <Button
-        android:id="@+id/fullscreen"
+        android:id="@+id/play"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/play"
+        app:layout_constraintStart_toStartOf="@+id/playerControl"
+        app:layout_constraintTop_toBottomOf="@+id/videoselector" />
+
+    <Button
+        android:id="@+id/pause"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:text="Fullscreen"
-        app:layout_constraintStart_toEndOf="@+id/mute"
-        app:layout_constraintTop_toBottomOf="@+id/playerControl" />
+        android:text="@string/pause"
+        app:layout_constraintStart_toEndOf="@+id/play"
+        app:layout_constraintTop_toTopOf="@+id/play" />
 
+    <Button
+        android:id="@+id/mute"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="@string/mute"
+        app:layout_constraintStart_toEndOf="@+id/pause"
+        app:layout_constraintTop_toTopOf="@+id/pause" />
+
+    <Button
+        android:id="@+id/unmute"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="@string/unmute"
+        app:layout_constraintStart_toEndOf="@+id/mute"
+        app:layout_constraintTop_toTopOf="@+id/mute" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

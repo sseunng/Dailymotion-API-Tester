@@ -1,3 +1,18 @@
 <resources>
     <string name="app_name">Dailymotion Tester</string>
+    <string name="quality">Quality control</string>
+    <string name="player">Player control</string>
+    <string name="q380">380</string>
+    <string name="q480">480</string>
+    <string name="q720">720</string>
+    <string name="q1080">1080</string>
+    <string name="info">Video info</string>
+    <string name="length">Length</string>
+    <string name="timezero">0:00</string>
+    <string name="current">Current</string>
+    <string name="load">Load</string>
+    <string name="play">Play</string>
+    <string name="pause">Pause</string>
+    <string name="mute">Mute</string>
+    <string name="unmute">Unmute</string>
 </resources>
